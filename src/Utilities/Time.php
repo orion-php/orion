@@ -4,19 +4,71 @@ declare(strict_types=1);
 namespace Orion\Utilities;
 
 class Time {
+	/**
+	 * @var int
+	 */
 	protected int $time;
+	
+	/**
+	 * @var string
+	 */
 	public string $seconds;
+	
+	/**
+	 * @var string
+	 */
 	public string $minutes;
+	
+	/**
+	 * @var string
+	 */
 	public string $hours;
+	
+	/**
+	 * @var string
+	 */
 	public string $day;
+	
+	/**
+	 * @var string
+	 */
 	public string $month;
+	
+	/**
+	 * @var string
+	 */
 	public string $year;
+	
+	/**
+	 * @var string
+	 */
 	public string $dayOfWeek;
+	
+	/**
+	 * @var string
+	 */
 	public string $dayOfYear;
+	
+	/**
+	 * @var string
+	 */
 	public string $weekOfYear;
+	
+	/**
+	 * @var string
+	 */
 	public string $monthOfYear;
+	
+	/**
+	 * @var string
+	 */
 	public string $dateTime;
 
+	/**
+	 * Construct
+	 * 
+	 * @return void
+	 */
 	public function __construct() {
 		$this->time        = time();
 		$this->seconds     = date('s', $this->time);
