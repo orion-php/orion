@@ -1,9 +1,11 @@
 <?php
 declare(strict_types=1);
-
 namespace Orion;
 
+include_once 'vendor/autoload.php';
+
 use Exception;
+use ReflectionClass;
 
 class Orion {
 
@@ -49,5 +51,25 @@ class Orion {
 			self::$instance = new static();
 		}
 		return self::$instance;
+	}
+
+	/**
+	 * Register listeners
+	 * 
+	 * Uses the listeners events property to determine which events to listen for
+	 * 
+	 * @param array<string> $listeners
+	 * @return void
+	 */
+	public function register(array $listeners): void {
+		array_map(function($listener) {
+			$reflection = new ReflectionClass($listener);
+			$events = $reflection->getProperty('events');
+			$events->setAccessible(true);
+			$events = $events->getValue(new $listener());
+			foreach ($events as $event) {
+				$this->listeners[$event][] = $listener;
+			}
+		}, $listeners);
 	}
 }
