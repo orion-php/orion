@@ -13,7 +13,7 @@ abstract class Data_Object {
 	/**
 	 * Construct
 	 * 
-	 * @param string $storage_key The name to store the key/value pair under in database if applicable
+	 * @param string $storage_key The name to store in database if applicable
 	 */
 	public function __construct($storage_key = '') {
 		$this->storage_key = $storage_key;
@@ -31,19 +31,33 @@ abstract class Data_Object {
 	}
 
 	/**
+	 * Get all class props and values
+	 * 
+	 * @param string $key
+	 * @return mixed
+	 */
+	public function extract(): array {
+		$class_properties = get_object_vars($this);
+		$data = [];
+
+		foreach ($class_properties as $key => $value) {
+			if (!isset($this->{$key}) || $key === 'storage_key') {
+				continue;
+			}
+			
+			$data[$key] = $value;
+		}
+
+		return $data;
+	}
+
+	/**
 	 * Compress the data
 	 * 
 	 * @return string
 	 */
 	public function compress(): string {
-		$class_properties = get_object_vars($this);
-		$data = [];
-
-		foreach ($class_properties as $key => $value) {
-			$data[$key] = $value;
-		}
-
-		return gzcompress(json_encode($data));
+		return gzcompress(json_encode($this->extract()));
 	}
 
 	/**
