@@ -160,6 +160,7 @@ class Orion {
 	}
 
 	// not crazy about these, trying to figure out a db schema that separates the data
+	// not sure I like these objects either, key_pair is ok the others I'm iffy on
 
 	public function savePointInTimeData(Key_Pair $Key_Pair): void {
 		// save the key pair in time

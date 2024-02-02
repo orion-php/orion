@@ -12,6 +12,11 @@ abstract class Data_Object {
 	public string $storage_key;
 
 	/**
+	 * @var int
+	 */
+	public int $time;
+
+	/**
 	 * Construct
 	 * 
 	 * @param string $storage_key The name to store in database if applicable

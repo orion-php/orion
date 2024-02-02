@@ -42,27 +42,32 @@ class Time {
 	/**
 	 * @var string
 	 */
-	public string $dayOfWeek;
+	public string $day_of_week;
 	
 	/**
 	 * @var string
 	 */
-	public string $dayOfYear;
+	public string $day_of_year;
 	
 	/**
 	 * @var string
 	 */
-	public string $weekOfYear;
+	public string $week_of_year;
 	
 	/**
 	 * @var string
 	 */
-	public string $monthOfYear;
+	public string $month_of_year;
 	
 	/**
 	 * @var string
 	 */
-	public string $dateTime;
+	public string $date_time;
+
+	/**
+	 * @var int
+	 */
+	public int $timestamp;
 
 	/**
 	 * Construct
@@ -82,5 +87,6 @@ class Time {
 		$this->weekOfYear  = date('W', $this->time);
 		$this->monthOfYear = date('n', $this->time);
 		$this->dateTime    = date('Y-m-d H:i:s', $this->time);
+		$this->timestamp   = $this->time;
 	}
 }

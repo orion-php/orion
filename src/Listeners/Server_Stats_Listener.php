@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace Orion\Listeners;
 
 use Orion\Events\Beacon;
+use Orion\Data_Types\Key_Pair;
+use Orion\Orion;
 
 class Server_Stats_Listener {
 
@@ -26,6 +28,8 @@ class Server_Stats_Listener {
 		if ($event instanceof Beacon) {
 			$this->beaconEvent($event);
 		}
+		
+		return;
 	}
 
 	/**
@@ -39,19 +43,20 @@ class Server_Stats_Listener {
 			return;
 		}
 
-		switch(PHP_OS_FAMILY) {
-			case 'Linux':
-				$cpu = $this->getCpuUsage();
-				$ram = $this->getRamUsage();
-				break;
-
-			default:
-				return;
-		}
+		$Cpu_Data = new Key_Pair('cpu_use', $this->getCpuUsage());
+		$Cpu_Data->time = $event->Time->timestamp;
 		
-		var_dump($cpu);
-		var_dump($ram);
-		echo $event->Time->seconds . PHP_EOL;
+		$Ram_Data = new Key_Pair('ram_use', $this->getRamUsage());
+		$Ram_Data->time = $event->Time->timestamp;
+		
+		// uncomment for demo.php
+		// var_dump($Cpu_Data->unwrap());
+		// var_dump($Ram_Data->unwrap());
+		// echo $event->Time->seconds . PHP_EOL;
+		
+		$Orion = Orion::getInstance();
+		$Orion->savePointInTimeData($Cpu_Data);
+		$Orion->savePointInTimeData($Ram_Data);
 		return;
 	}
 

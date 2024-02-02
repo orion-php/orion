@@ -14,6 +14,11 @@ class Series_Object {
 	public string $storage_key;
 
 	/**
+	 * @var int
+	 */
+	public int $time;
+
+	/**
 	 * @var array
 	 */
 	protected array $data_series = [];

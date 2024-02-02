@@ -10,6 +10,11 @@ class Key_Pair {
 	 * @var string
 	 */
 	public string $storage_key;
+
+	/**
+	 * @var int
+	 */
+	public int $time;
 	
 	/**
 	 * @var string
