@@ -38,11 +38,42 @@ class Server_Stats_Listener {
 		if ($event->Time->seconds % 5 !== 0) {
 			return;
 		}
+
+		switch(PHP_OS_FAMILY) {
+			case 'Linux':
+				$cpu = $this->getCpuUsage();
+				$ram = $this->getRamUsage();
+				break;
+
+			default:
+				return;
+		}
 		
-		// demo poc for beacon event
-		echo "From Server_Stats_Listener" . PHP_EOL;
-		echo "OS Family: " . PHP_OS_FAMILY . PHP_EOL;
+		var_dump($cpu);
+		var_dump($ram);
 		echo $event->Time->seconds . PHP_EOL;
 		return;
 	}
+
+	/**
+	 * Get the CPU usage
+	 * 
+	 * @return float
+	 */
+	protected function getCpuUsage(): float {
+		$cpu_usage = shell_exec("top -bn1 | grep -E '^(%Cpu|CPU)' | awk '{ print $2 + $4 }'");
+		return round((float) $cpu_usage, 2);
+	}
+
+	/**
+	 * Get the free ram
+	 * 
+	 * @return float
+	 */
+
+	protected function getRamUsage(): float {
+		$free_result = shell_exec("free -m | grep -E 'Mem:' | awk '{ print ($3/$2) * 100 }'");
+		return round((float) $free_result, 2);
+	}
+
 }

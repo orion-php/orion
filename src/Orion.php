@@ -4,6 +4,9 @@ namespace Orion;
 
 use Exception;
 use ReflectionClass;
+use Orion\Data_Types\Key_Pair;
+use Orion\Data_Types\Data_Object;
+use Orion\Data_Types\Series_Object;
 
 class Orion {
 
@@ -49,8 +52,12 @@ class Orion {
 
 	protected function __construct(array $config) { 
 		if (!empty($config)) {
-			// TODO: make sure config is not already set
-			$this->config = $config;
+			foreach ($config as $key => $value) {
+				if (isset($this->config[$key])) {
+					continue;
+				}
+				$this->config[$key] = $value;
+			}
 		}
 	}
 
@@ -138,5 +145,49 @@ class Orion {
 		}
 		
 		return;
+	}
+
+	/**
+	 * Wait for a future event to be fired, store the listener in a queue to be finished
+	 * 
+	 * @param string $future_event event class name
+	 * @param object $listener     listener object
+	 * @return void
+	 */
+	public function wait(string $future_event, object $listener): void {
+		$this->queued[$future_event][] = $listener;
+		return;
+	}
+
+	// not crazy about these, trying to figure out a db schema that separates the data
+
+	public function savePointInTimeData(Key_Pair $Key_Pair): void {
+		// save the key pair in time
+		// id
+		// unique_id / hash of data
+		// storage_key
+		// data compress/uncompressed?
+		// timestamp
+	}
+
+	public function saveEventData(Data_Object $Data_Object): void {
+		// save the data object
+		// id
+		// unique_id / hash
+		// storage_key
+		// type
+		// data compress/uncompressed?
+		// timestamp
+	}
+
+	public function saveSeriesData(Series_Object $Series_Object): void {
+		// save the series
+		// id
+		// series_hash
+		// unique_id / hash
+		// storage_key
+		// type
+		// data compress/uncompressed?
+		// timestamp
 	}
 }

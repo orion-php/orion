@@ -3,13 +3,20 @@ declare(strict_types=1);
 
 namespace Orion\Data_Types;
 
-// meh
-abstract class Data_Object {
+use Orion\Data_Types\Data_Object;
+
+//meh
+class Series_Object {
 
 	/**
 	 * @var string
 	 */
 	public string $storage_key;
+
+	/**
+	 * @var array
+	 */
+	protected array $data_series = [];
 
 	/**
 	 * Construct
@@ -21,32 +28,27 @@ abstract class Data_Object {
 	}
 
 	/**
-	 * Set a property
+	 * Set an object
 	 * 
 	 * @param string $key
 	 * @param mixed $value
 	 * @return void
 	 */
-	public function set(string $key, $value): void {
-		$this->{$key} = $value;
+	public function set(Data_Object $Data_Object): void {
+		$this->data_series[] = $Data_Object;
 	}
 
 	/**
-	 * Get all class props and values
+	 * extract all data
 	 * 
 	 * @param string $key
 	 * @return mixed
 	 */
 	public function extract(): array {
-		$class_properties = get_object_vars($this);
 		$data = [];
 
-		foreach ($class_properties as $key => $value) {
-			if (!isset($this->{$key}) || $key === 'storage_key') {
-				continue;
-			}
-			
-			$data[$key] = $value;
+		foreach ($this->data_series as $Data_Object) {
+			$data[] = $Data_Object->extract();
 		}
 
 		return $data;
@@ -58,11 +60,11 @@ abstract class Data_Object {
 	 * @return string
 	 */
 	public function compress(): string {
-		return gzcompress(json_encode($this->extract()));
+		return gzcompress(json_encode($this->data_series));
 	}
 
 	/**
-	 * Decompress the data
+	 * Decompress the data and return it
 	 * 
 	 * @param string $compressed
 	 * @return void
@@ -70,11 +72,7 @@ abstract class Data_Object {
 	public function decompress($compressed):void {
 		$uncompressed = gzuncompress($compressed);
 		$data = json_decode($uncompressed, true);
-
-		foreach ($data as $key => $value) {
-			$this->set($key, $value);
-		}
-
+		$this->data_series = $data;
 		return;
 	}
 }
