@@ -4,11 +4,15 @@ namespace Orion;
 
 use Exception;
 use ReflectionClass;
-use Orion\Data_Types\Key_Pair;
-use Orion\Data_Types\Data_Object;
-use Orion\Data_Types\Series_Object;
+use Orion\Storage\Mysql_Storage;
+use Orion\Storage\Storage_Interface;
+use Orion\Utilities\Compression;
 
 class Orion {
+
+	const HISTORICAL_TABLE = 'orion_historical';
+	const EVENT_TABLE = 'orion_event';
+	const SERIES_TABLE = 'orion_series';
 
 	/**
 	 * Instance of Orion
@@ -39,6 +43,13 @@ class Orion {
 	protected array $config = [];
 
 	/**
+	 * Storage
+	 * 
+	 * @var Storage_Interface
+	 */
+	protected Storage_Interface $Storage;
+
+	/**
 	 *Prevent the instance from being cloned
 	 */
 	protected function __clone() { }
@@ -59,6 +70,24 @@ class Orion {
 				$this->config[$key] = $value;
 			}
 		}
+
+		$this->configureStorage();
+	}
+
+	/**
+	 * Configure the storage
+	 * 
+	 * @return void
+	 */
+	protected function configureStorage(): void {
+		switch($this->config['database']['type']) {
+			case 'mysql':
+				$this->Storage = new Mysql_Storage($this->config['database']);
+				break;
+			default:
+				throw new Exception("Database type not supported");
+		}
+		return;
 	}
 
 	/**
@@ -159,36 +188,60 @@ class Orion {
 		return;
 	}
 
-	// not crazy about these, trying to figure out a db schema that separates the data
-	// not sure I like these objects either, key_pair is ok the others I'm iffy on
-
-	public function savePointInTimeData(Key_Pair $Key_Pair): void {
-		// save the key pair in time
-		// id
-		// unique_id / hash of data
-		// storage_key
-		// data compress/uncompressed?
-		// timestamp
+	/**
+	 * Saves point in time data ie cpu usage, ram usage
+	 * 
+	 * Data is not compressed on insert
+	 * 
+	 * @param string $key_name
+	 * @param mixed $data
+	 * @param int $timestamp
+	 * @return void
+	 */
+	public function save(string $key_name, $data, int $timestamp): void {
+		$this->Storage->save(self::HISTORICAL_TABLE, $key_name, $this->uniqueId(), $data, $timestamp);
+		return;
 	}
 
-	public function saveEventData(Data_Object $Data_Object): void {
-		// save the data object
-		// id
-		// unique_id / hash
-		// storage_key
-		// type
-		// data compress/uncompressed?
-		// timestamp
+	/**
+	 * Saves an events data ie  page load time, user interaction
+	 * 
+	 * Data is compressed on insert
+	 * 
+	 * @param string $key_name
+	 * @param array $data
+	 * @param int $timestamp
+	 * @return void
+	 */
+	public function saveEvent(string $key_name, array $data, int $timestamp): void {
+		$data_compressed = Compression::compress(json_encode($data));
+		$this->Storage->save(self::EVENT_TABLE, $key_name, $this->uniqueId(), $data_compressed, $timestamp);
+		return;
 	}
 
-	public function saveSeriesData(Series_Object $Series_Object): void {
-		// save the series
-		// id
-		// series_hash
-		// unique_id / hash
-		// storage_key
-		// type
-		// data compress/uncompressed?
-		// timestamp
+	/**
+	 * Saves a series of related events ie: user interactions over time
+	 * 
+	 * Data is compressed on insert
+	 * 
+	 * @param string $key_name
+	 * @param array $data
+	 * @param int $timestamp
+	 * @param string $series_id
+	 * @return void
+	 */
+	public function saveSeries(string $key_name, array $data, int $timestamp, string $series_id = ''): void {
+		$data_compressed = Compression::compress(json_encode($data));
+		$this->Storage->saveSeries($series_id, $key_name, $this->uniqueId(), $data_compressed, $timestamp);
+		return;
+	}
+
+	/**
+	 * Generate a unique id
+	 * 
+	 * @return string
+	 */
+	protected function uniqueId(): string {
+		return bin2hex(openssl_random_pseudo_bytes(12));
 	}
 }
