@@ -153,7 +153,6 @@ class Orion {
 	 */
 	protected function processQueuedEvents(string $event_class, object $event): void {
 		foreach($this->queued[$event_class] as $listener) {
-			$listener = new $listener();
 			$listener->record($event);
 		}
 
