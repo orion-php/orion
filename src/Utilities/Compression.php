@@ -22,6 +22,6 @@ class Compression {
 	 * @return string
 	 */
 	public static function decompress(string $string): string {
-		return gzuncompress($string);
+		return json_decode(gzuncompress($string));
 	}
 }

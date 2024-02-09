@@ -7,6 +7,11 @@ use ReflectionClass;
 use Orion\Storage\Mysql_Storage;
 use Orion\Storage\Storage_Interface;
 use Orion\Utilities\Compression;
+use Orion\Utilities\Time;
+use Orion\Exceptions\Orion_Exception;
+use Orion\Handlers\Error_Handler;
+use Orion\Handlers\Shutdown_Handler;
+use Orion\Utilities\Injector;
 
 class Orion {
 
@@ -50,6 +55,20 @@ class Orion {
 	protected Storage_Interface $Storage;
 
 	/**
+	 * Injector
+	 * 
+	 * @var Injector
+	 */
+	public Injector $Injector;
+
+	/**
+	 * Time
+	 * 
+	 * @var Time
+	 */
+	protected Time $Time;
+
+	/**
 	 *Prevent the instance from being cloned
 	 */
 	protected function __clone() { }
@@ -61,7 +80,13 @@ class Orion {
 		throw new Exception("I'm a singleton, you're in danger!");
 	}
 
+	/**
+	 * Constructor
+	 * 
+	 * @param array $config
+	 */
 	protected function __construct(array $config) { 
+		$this->time = new Time;
 		if (!empty($config)) {
 			foreach ($config as $key => $value) {
 				if (isset($this->config[$key])) {
@@ -71,7 +96,67 @@ class Orion {
 			}
 		}
 
+		$this->Injector = new Injector;
+		$this->enable();
+		$this->dispatchPostEnableEvents();
+	}
+
+	/**
+	 * Enable Orion
+	 * 
+	 * @return void
+	 */
+	protected function enable(): void {
+
 		$this->configureStorage();
+
+		// Set up error and shutdown handlers
+		$Error_Handler = $this->Injector->resolve(Error_Handler::class);
+		$Error_Handler->registerErrorHandler();
+
+		$Shutdown_Handler = $this->Injector->resolve(Shutdown_Handler::class);
+		$Shutdown_Handler->registerShutdownHandler();
+
+		// Register default listeners
+		// TODO: add listener for route requested, logged in user, anon user etc
+		// TODO: ignore this if config is set to ignore, ie cron for beacon event probably won't need this
+		$this->register([
+			Execution_Listener::class,
+		]);
+
+		$this->callOnEnabledEvents();
+
+		return;
+	}
+
+	/**
+	 * Call on enabled events
+	 * 
+	 * @return void
+	 */
+	protected function callOnEnabledEvents(): void {
+		$on_enable_events = [
+			Execution_Start::class => [],
+		];
+
+		foreach ($on_enable_events as $event => $dependencies) {
+			$this->fire($this->Injector->resolve($event, $dependencies));
+		}
+	}
+
+	/**
+	 * Dispatch post enable events
+	 * 
+	 * @return void
+	 */	
+	protected function dispatchPostEnableEvents(): void {
+		$post_enable_events = [
+			// example: Execution_End::class => [],
+		];
+
+		foreach ($post_enable_events as $event => $dependencies) {
+			$this->fire($this->Injector->resolve($event, $dependencies));
+		}
 	}
 
 	/**
@@ -80,12 +165,16 @@ class Orion {
 	 * @return void
 	 */
 	protected function configureStorage(): void {
-		switch($this->config['database']['type']) {
+		if (empty($this->config['storage_type'])) {
+			throw new Orion_Exception("Storage type not set");
+		}
+
+		switch($this->config['storage_type']) {
 			case 'mysql':
-				$this->Storage = new Mysql_Storage($this->config['database']);
+				$this->Storage = $this->Injector->resolve(Mysql_Storage::class, $this->config['database']);
 				break;
 			default:
-				throw new Exception("Database type not supported");
+				throw new Orion_Exception("Database type not supported");
 		}
 		return;
 	}
@@ -127,6 +216,8 @@ class Orion {
 	/**
 	 * Fire an event, calling all listeners that are registered to that event
 	 * 
+	 * TODO: would this be better to fire off with exec() so it is more "async"?
+	 * 
 	 * @param object $event
 	 * @return void
 	 */
@@ -155,6 +246,8 @@ class Orion {
 		foreach($this->queued[$event_class] as $listener) {
 			$listener->record($event);
 		}
+
+		unset($this->queued[$event_class]);
 
 		return;
 	}
