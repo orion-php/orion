@@ -70,6 +70,11 @@ class Time {
 	public int $timestamp;
 
 	/**
+	 * @var int
+	 */
+	public int $microtime;
+
+	/**
 	 * Construct
 	 * 
 	 * @return void
@@ -88,5 +93,6 @@ class Time {
 		$this->month_of_year = date('n', $this->time);
 		$this->date_time     = date('Y-m-d H:i:s', $this->time);
 		$this->timestamp     = $this->time;
+		$this->microtime     = microtime(true);
 	}
 }

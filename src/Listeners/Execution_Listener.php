@@ -34,7 +34,7 @@ class Execution_Listener {
 	 */
 	public function record($event): void {
 		if ($event instanceof Execution_Start && !isset($this->start_time)) {
-			$this->start_time = $event->Time->timestamp;
+			$this->start_time = $event->Time->microtime;
 			
 			Orion::getInstance()->wait(Execution_End::class, $this);
 			
@@ -53,8 +53,8 @@ class Execution_Listener {
 	 * @return void
 	 */
 	protected function endEvent(Execution_End $event): void {
-		$end_time = $event->Time->timestamp;
-		$execution_time = ($end_time - $this->start_time) / 1000;
+		$end_time = $event->Time->microtime;
+		$execution_time = $end_time - $this->start_time;
 		$data = [
 			'execution_time' => $execution_time,
 			'end_time' => $end_time,

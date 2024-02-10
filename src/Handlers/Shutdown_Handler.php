@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace Orion\Handlers;
 
 use Orion\Orion;
+use Orion\Events\Execution_End;
+use Orion\Events\Fatal_Error_Event;
 
 class Shutdown_Handler {
 
@@ -30,6 +32,25 @@ class Shutdown_Handler {
 	 * @return void
 	 */
 	public function registerShutdownHandler(): void {
-		// register a shutdown handler to catch fatals and dispatch specific events like execution end
+		register_shutdown_function(function() {
+			$error = error_get_last();
+
+			if (!empty($error)) {
+				switch($error['type']) {
+					case E_ERROR:
+					case E_CORE_ERROR:
+					case E_COMPILE_ERROR:
+					case E_USER_ERROR:
+						$this->Orion->fire($this->Orion->Injector->resolve(Fatal_Error_Event::class, [$error]));
+						break;
+					default:
+						break;
+				}
+			}
+
+			$this->Orion->fire($this->Orion->Injector->resolve(Execution_End::class));
+
+			return;
+		});
 	}
 }

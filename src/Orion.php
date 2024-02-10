@@ -12,6 +12,12 @@ use Orion\Exceptions\Orion_Exception;
 use Orion\Handlers\Error_Handler;
 use Orion\Handlers\Shutdown_Handler;
 use Orion\Utilities\Injector;
+use Orion\Listeners\Execution_Listener;
+use Orion\Listeners\Fatal_Error_Listener;
+use Orion\Listeners\Warning_Listener;
+use Orion\Listeners\Request_Listener;
+use Orion\Events\User_Event;
+use Orion\Events\Route_Event;
 
 class Orion {
 
@@ -98,7 +104,10 @@ class Orion {
 
 		$this->Injector = new Injector;
 		$this->enable();
-		$this->dispatchPostEnableEvents();
+
+		if ($this->config['default_listeners'] === true) {
+			$this->dispatchPostEnableEvents();
+		}
 	}
 
 	/**
@@ -107,6 +116,14 @@ class Orion {
 	 * @return void
 	 */
 	protected function enable(): void {
+
+		// dont show errors
+		if (function_exists('ini_set')) {
+			ini_set('display_errors', 'off');
+			ini_set('html_errors', 'off');
+		}
+
+		error_reporting(E_ALL);
 
 		$this->configureStorage();
 
@@ -118,13 +135,16 @@ class Orion {
 		$Shutdown_Handler->registerShutdownHandler();
 
 		// Register default listeners
-		// TODO: add listener for route requested, logged in user, anon user etc
-		// TODO: ignore this if config is set to ignore, ie cron for beacon event probably won't need this
-		$this->register([
-			Execution_Listener::class,
-		]);
+		if ($this->config['default_listeners'] === true) {
+			$this->register([
+				Execution_Listener::class,
+				Fatal_Error_Listener::class,
+				Warning_Listener::class,
+				Request_Listener::class,
+			]);
 
-		$this->callOnEnabledEvents();
+			$this->callOnEnabledEvents();
+		}
 
 		return;
 	}
@@ -137,6 +157,8 @@ class Orion {
 	protected function callOnEnabledEvents(): void {
 		$on_enable_events = [
 			Execution_Start::class => [],
+			User_Event::class => [],
+			Route_Event::class => [],
 		];
 
 		foreach ($on_enable_events as $event => $dependencies) {
@@ -151,7 +173,7 @@ class Orion {
 	 */	
 	protected function dispatchPostEnableEvents(): void {
 		$post_enable_events = [
-			// example: Execution_End::class => [],
+			
 		];
 
 		foreach ($post_enable_events as $event => $dependencies) {
