@@ -17,10 +17,10 @@ class Fatal_Error_Listener {
 	];
 
 	protected array $error_types = [
-		'1' => 'Fatal Error',
-		'16' => 'Core Error',
-		'64' => 'Compile Error',
-		'256' => 'User Error',
+		1 => 'Fatal Error',
+		16 => 'Core Error',
+		64 => 'Compile Error',
+		256 => 'User Error',
 	];
 	
 	/**

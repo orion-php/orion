@@ -1,5 +1,5 @@
 {    
-    "name": "danc0/orion",
+    "name": "orion-php/orion",
     "version": "0.0.0",
     "type": "library",
     "description": "An APM tool for PHP",

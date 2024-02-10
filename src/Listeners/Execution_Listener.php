@@ -62,7 +62,14 @@ class Execution_Listener {
 			'request' => $_SERVER['REQUEST_URI'],
 		];
 
-		Orion::getInstance()->saveEvent('execution_time', $data, $event->Time->timestamp);
+		$config = Orion::getInstance()->config;
+
+		if (!empty($config['execution_slow_threshold']) && $execution_time > $config['execution_slow_threshold']) {
+			Orion::getInstance()->saveEvent('slow_execution', $data, $event->Time->timestamp);
+			return;
+		}
+
+		Orion::getInstance()->saveEvent('execution', $data, $event->Time->timestamp);
 
 		return;
 	}
