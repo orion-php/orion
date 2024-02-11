@@ -122,8 +122,8 @@ class Orion {
 		if (boolval($this->config['default_listeners']) === true) {
 			$this->register([
 				Execution_Listener::class,
-				// Fatal_Error_Listener::class,
-				// Warning_Listener::class,
+				Fatal_Error_Listener::class,
+				Warning_Listener::class,
 				// Request_Listener::class,
 			]);
 			
