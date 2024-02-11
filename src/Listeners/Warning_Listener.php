@@ -44,7 +44,7 @@ class Warning_Listener {
 			'error_file' => $error_file,
 		];
 
-		switch($event['type']) {
+		switch($event->event['type']) {
 			case 1:
 			case 16:
 			case 64:

@@ -33,7 +33,7 @@ class Shutdown_Handler {
 					case E_CORE_ERROR:
 					case E_COMPILE_ERROR:
 					case E_USER_ERROR:
-						$Orion->fire($Orion->Injector->resolve(Fatal_Error_Event::class, [$error]));
+						$Orion->fire($Orion->Injector->resolve(Fatal_Error_Event::class, [], [$error]));
 						break;
 					default:
 						break;
