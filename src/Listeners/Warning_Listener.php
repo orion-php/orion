@@ -34,6 +34,9 @@ class Warning_Listener {
 	];
 
 	public function record($event): void {
+		if (empty($event->event[0])) {
+			return;
+		}
 		$error_name = $this->types[(int)$event->event[0]['type']];
 		$error_message = $event->event[0]['message'];
 		$error_file = $event->event[0]['file'] . 'LINE: ' . $event->event[0]['line'];
