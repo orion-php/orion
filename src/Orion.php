@@ -334,7 +334,7 @@ class Orion {
 	 */
 	public function saveEvent(string $key_name, array $data, int $timestamp): void {
 		$data_compressed = Compression::compress(json_encode($data));
-		$this->Storage->save(self::EVENT_TABLE, $key_name, $this->uniqueId(), json_encode($data), $timestamp);
+		$this->Storage->save(self::EVENT_TABLE, $key_name, $this->uniqueId(), $data_compressed, $timestamp);
 		return;
 	}
 
