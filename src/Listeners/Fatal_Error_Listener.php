@@ -30,9 +30,9 @@ class Fatal_Error_Listener {
 	 * @return void
 	 */
 	public function record($event): void {
-		$error_name = $this->error_types[$event->fatal_event['type']];
-		$error_message = $event->fatal_event['message'];
-		$error_file = $event->fatal_event['file'] . 'LINE: ' . $event->fatal_event['line'];
+		$error_name = $this->error_types[$event->fatal_event[0]['type']];
+		$error_message = $event->fatal_event[0]['message'];
+		$error_file = $event->fatal_event[0]['file'] . 'LINE: ' . $event->fatal_event[0]['line'];
 
 		$data = [
 			'error_name' => $error_name,

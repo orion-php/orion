@@ -34,9 +34,9 @@ class Warning_Listener {
 	];
 
 	public function record($event): void {
-		$error_name = $this->types[$event->event['type']];
-		$error_message = $event->event['message'];
-		$error_file = $event->event['file'] . 'LINE: ' . $event->event['line'];
+		$error_name = $this->types[(int)$event->event[0]['type']];
+		$error_message = $event->event[0]['message'];
+		$error_file = $event->event[0]['file'] . 'LINE: ' . $event->event[0]['line'];
 
 		$data = [
 			'error_name' => $error_name,
@@ -44,7 +44,7 @@ class Warning_Listener {
 			'error_file' => $error_file,
 		];
 
-		switch($event->event['type']) {
+		switch((int)$event->event[0]['type']) {
 			case 1:
 			case 16:
 			case 64:
