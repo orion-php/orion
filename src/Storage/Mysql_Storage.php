@@ -46,7 +46,7 @@ class Mysql_Storage implements Storage_Interface {
 			':unique_id' => $unique_id,
 			':key_name' => $key,
 			':data_value' => $value,
-			':created' => $timestamp
+			':created' => date("Y-m-d H:i:s", $timestamp),
 		]);
 		return;
 	}
@@ -69,7 +69,7 @@ class Mysql_Storage implements Storage_Interface {
 			':unique_id' => $unique_id,
 			':key_name' => $key,
 			':data_value' => $value,
-			':created' => $timestamp
+			':created' => date("Y-m-d H:i:s", $timestamp),
 		]);
 		return;
 	}

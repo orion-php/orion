@@ -14,9 +14,8 @@ class Execution_Listener {
 	 * 
 	 * @var array
 	 */
-	protected array $events = [
+	public array $events = [
 		Execution_Start::class,
-		Execution_End::class,
 	];
 
 	/**
@@ -24,7 +23,7 @@ class Execution_Listener {
 	 * 
 	 * @var int
 	 */
-	protected int $start_time;
+	protected float $start_time;
 
 	/**
 	 * Record the event
@@ -35,12 +34,11 @@ class Execution_Listener {
 	public function record($event): void {
 		if ($event instanceof Execution_Start && !isset($this->start_time)) {
 			$this->start_time = $event->Time->microtime;
-			
 			Orion::getInstance()->wait(Execution_End::class, $this);
 			
 			return;
 		}
-		
+
 		$this->endEvent($event);
 
 		return;
@@ -54,12 +52,12 @@ class Execution_Listener {
 	 */
 	protected function endEvent(Execution_End $event): void {
 		$end_time = $event->Time->microtime;
-		$execution_time = $end_time - $this->start_time;
+		$execution_time = round(($end_time - $this->start_time), 2);
 		$data = [
 			'execution_time' => $execution_time,
 			'end_time' => $end_time,
 			'start_time' => $this->start_time,
-			'request' => $_SERVER['REQUEST_URI'],
+			'request' => $_SERVER['REQUEST_URI']
 		];
 
 		$config = Orion::getInstance()->config;

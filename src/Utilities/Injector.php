@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Orion\Utilities;
 
 use ReflectionClass;
+use Orion\Orion;
 
 class Injector{
 	
@@ -44,7 +45,7 @@ class Injector{
 	 * @param array  $dependencies dependencies
 	 * @return object
 	 */
-	public function resolve(string $class_name, array $dependencies = []): object {
+	public function resolve(string $class_name, array $dependencies = [], $data = null): object {
 		if (!empty($this->resolved_classes[$class_name])) {
 			return $this->resolved_classes[$class_name];
 		}
@@ -53,7 +54,7 @@ class Injector{
 			return $this->registered_classes[$class_name];
 		}
 
-		return $this->createFreshInstance($class_name, $dependencies);
+		return $this->createFreshInstance($class_name, $dependencies, $data);
 	}
 
 	/**
@@ -63,8 +64,8 @@ class Injector{
 	 * @param array  $dependencies dependencies
 	 * @return object
 	 */
-	public function resolveFresh(string $class_name, array $dependencies = []): object {
-		return $this->createFreshInstance($class_name, $dependencies);
+	public function resolveFresh(string $class_name, array $dependencies = [], $data = null): object {
+		return $this->createFreshInstance($class_name, $dependencies, $data);
 	}
 
 	/**
@@ -74,14 +75,18 @@ class Injector{
 	 * @param array  $dependencies dependencies
 	 * @return object
 	 */
-	protected function createFreshInstance(string $class_name, array $dependencies):object {
+	protected function createFreshInstance(string $class_name, array $dependencies, $data = null):object {
 		$dependencies[Injector::class] = $this;
 
 		$reflection  = new ReflectionClass($class_name);
 		$constructor = $reflection->getConstructor();
 
 		if (empty($constructor)) {
-			$instance = new $class_name();
+			if (!is_null($data)) {
+				$instance = new $class_name($data);
+			} else {
+				$instance = new $class_name();
+			}
 		} else {
 			$constructor_params = $constructor->getParameters();
 			$constructor_args   = [];
@@ -96,9 +101,16 @@ class Injector{
 				} else if (!empty($param_class) && class_exists($param_class)) {
 					$constructor_args[] = $this->resolve($param_class);
 					continue;
+				} else if (!empty($this->registered_classes[$param_class])) {
+					$constructor_args[] = $this->registered_classes[$param_class];
+					continue;
 				} else {
 					continue;
 				}
+			}
+			
+			if (!is_null($data)) {
+				$constructor_args[] = $data;
 			}
 
 			$instance = $reflection->newInstanceArgs($constructor_args);

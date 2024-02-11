@@ -3,3 +3,4 @@ src/vendor
 .vscode
 .phpunit.cache
 src/tests/coverage
+.ignore/

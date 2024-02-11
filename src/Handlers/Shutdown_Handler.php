@@ -17,22 +17,14 @@ class Shutdown_Handler {
 	protected Orion $Orion;
 
 	/**
-	 * Construct
-	 * 
-	 * @param Orion $Orion
-	 * @return void
-	 */
-	public function __construct(Orion $Orion) {
-		$this->Orion = $Orion::getInstance();
-	}
-
-	/**
 	 * Shutdown handler
 	 * 
 	 * @return void
 	 */
 	public function registerShutdownHandler(): void {
+		// $Orion = Orion::getInstance();
 		register_shutdown_function(function() {
+			$Orion = Orion::getInstance();
 			$error = error_get_last();
 
 			if (!empty($error)) {
@@ -41,14 +33,14 @@ class Shutdown_Handler {
 					case E_CORE_ERROR:
 					case E_COMPILE_ERROR:
 					case E_USER_ERROR:
-						$this->Orion->fire($this->Orion->Injector->resolve(Fatal_Error_Event::class, [$error]));
+						$Orion->fire($Orion->Injector->resolve(Fatal_Error_Event::class, [$error]));
 						break;
 					default:
 						break;
 				}
 			}
 
-			$this->Orion->fire($this->Orion->Injector->resolve(Execution_End::class));
+			$Orion->fire($Orion->Injector->resolve(Execution_End::class));
 
 			return;
 		});

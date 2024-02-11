@@ -18,6 +18,7 @@ use Orion\Listeners\Warning_Listener;
 use Orion\Listeners\Request_Listener;
 use Orion\Events\User_Event;
 use Orion\Events\Route_Event;
+use Orion\Events\Execution_Start;
 
 class Orion {
 
@@ -51,7 +52,7 @@ class Orion {
 	 * 
 	 * @var array
 	 */
-	protected array $config = [];
+	public array $config;
 
 	/**
 	 * Storage
@@ -86,28 +87,21 @@ class Orion {
 		throw new Exception("I'm a singleton, you're in danger!");
 	}
 
+
 	/**
 	 * Constructor
 	 * 
 	 * @param array $config
 	 */
-	protected function __construct(array $config) { 
+	private function __construct(array $config) {
 		$this->time = new Time;
 		if (!empty($config)) {
 			foreach ($config as $key => $value) {
-				if (isset($this->config[$key])) {
-					continue;
-				}
 				$this->config[$key] = $value;
 			}
 		}
 
 		$this->Injector = new Injector;
-		$this->enable();
-
-		if ($this->config['default_listeners'] === true) {
-			$this->dispatchPostEnableEvents();
-		}
 	}
 
 	/**
@@ -115,9 +109,9 @@ class Orion {
 	 * 
 	 * @return void
 	 */
-	protected function enable(): void {
+	public function enable(): void {
+		$this->configureStorage();
 
-		// dont show errors
 		if (function_exists('ini_set')) {
 			ini_set('display_errors', 'off');
 			ini_set('html_errors', 'off');
@@ -125,28 +119,39 @@ class Orion {
 
 		error_reporting(E_ALL);
 
-		$this->configureStorage();
+		if (boolval($this->config['default_listeners']) === true) {
+			$this->register([
+				Execution_Listener::class,
+				// Fatal_Error_Listener::class,
+				// Warning_Listener::class,
+				// Request_Listener::class,
+			]);
+			
+			$this->callOnEnabledEvents();
+		}
 
-		// Set up error and shutdown handlers
+		if (boolval($this->config['default_listeners']) === true) {
+			$this->dispatchPostEnableEvents();
+		}
+
+		// must be set last
+		$this->setErrorAndShutdownHandlers();
+
+		return;
+	}
+
+	/**
+	 * Set error and shutdown handlers
+	 * Should come last so queued items are processed
+	 * 
+	 * @return void
+	 */
+	protected function setErrorAndShutdownHandlers(): void {
 		$Error_Handler = $this->Injector->resolve(Error_Handler::class);
 		$Error_Handler->registerErrorHandler();
 
 		$Shutdown_Handler = $this->Injector->resolve(Shutdown_Handler::class);
 		$Shutdown_Handler->registerShutdownHandler();
-
-		// Register default listeners
-		if ($this->config['default_listeners'] === true) {
-			$this->register([
-				Execution_Listener::class,
-				Fatal_Error_Listener::class,
-				Warning_Listener::class,
-				Request_Listener::class,
-			]);
-
-			$this->callOnEnabledEvents();
-		}
-
-		return;
 	}
 
 	/**
@@ -157,8 +162,8 @@ class Orion {
 	protected function callOnEnabledEvents(): void {
 		$on_enable_events = [
 			Execution_Start::class => [],
-			User_Event::class => [],
-			Route_Event::class => [],
+			// User_Event::class => [],
+			// Route_Event::class => [],
 		];
 
 		foreach ($on_enable_events as $event => $dependencies) {
@@ -187,13 +192,14 @@ class Orion {
 	 * @return void
 	 */
 	protected function configureStorage(): void {
+
 		if (empty($this->config['storage_type'])) {
 			throw new Orion_Exception("Storage type not set");
 		}
 
 		switch($this->config['storage_type']) {
 			case 'mysql':
-				$this->Storage = $this->Injector->resolve(Mysql_Storage::class, $this->config['database']);
+				$this->Storage = $this->Injector->resolve(Mysql_Storage::class, [], $this->config['database']);
 				break;
 			default:
 				throw new Orion_Exception("Database type not supported");
@@ -208,7 +214,7 @@ class Orion {
 	 */
 	public static function getInstance($config = []): Orion {
 		if (!isset(self::$instance)) {
-			self::$instance = new static($config);
+			self::$instance = new self($config);
 		}
 		return self::$instance;
 	}
@@ -226,7 +232,7 @@ class Orion {
 			function($listener) {
 				$reflection = new ReflectionClass($listener);
 				$events = $reflection->getProperty('events');
-				$events = $events->getValue(new $listener());
+				$events = $events->getValue($this->Injector->resolve($listener));
 				foreach ($events as $event) {
 					$this->listeners[$event][] = $listener;
 				}
@@ -245,7 +251,6 @@ class Orion {
 	 */
 	public function fire($event): void {
 		$event_class = get_class($event);
-
 		if (isset($this->queued[$event_class])) {
 			$this->processQueuedEvents($event_class, $event);
 		}
@@ -283,7 +288,7 @@ class Orion {
 	 */
 	protected function processEvents(string $event_class, object $event): void {
 		foreach ($this->listeners[$event_class] as $listener) {
-			$listener = new $listener();
+			$listener = $this->Injector->resolve($listener);
 			$listener->record($event);
 		}
 		
@@ -329,7 +334,7 @@ class Orion {
 	 */
 	public function saveEvent(string $key_name, array $data, int $timestamp): void {
 		$data_compressed = Compression::compress(json_encode($data));
-		$this->Storage->save(self::EVENT_TABLE, $key_name, $this->uniqueId(), $data_compressed, $timestamp);
+		$this->Storage->save(self::EVENT_TABLE, $key_name, $this->uniqueId(), json_encode($data), $timestamp);
 		return;
 	}
 
