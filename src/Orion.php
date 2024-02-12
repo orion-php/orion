@@ -166,7 +166,7 @@ class Orion {
 		];
 
 		foreach ($on_enable_events as $event => $dependencies) {
-			$this->fire($this->Injector->resolve($event, $dependencies));
+			$this->fire($this->Injector->resolve($event, [], $dependencies));
 		}
 	}
 
@@ -181,7 +181,7 @@ class Orion {
 		];
 
 		foreach ($post_enable_events as $event => $dependencies) {
-			$this->fire($this->Injector->resolve($event, $dependencies));
+			$this->fire($this->Injector->resolve($event, [], $dependencies));
 		}
 	}
 
