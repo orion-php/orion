@@ -15,7 +15,7 @@ use Orion\Utilities\Injector;
 use Orion\Listeners\Execution_Listener;
 use Orion\Listeners\Fatal_Error_Listener;
 use Orion\Listeners\Warning_Listener;
-use Orion\Listeners\Request_Listener;
+use Orion\Listeners\User_Listener;
 use Orion\Events\User_Event;
 use Orion\Events\Route_Event;
 use Orion\Events\Execution_Start;
@@ -124,7 +124,7 @@ class Orion {
 				Execution_Listener::class,
 				Fatal_Error_Listener::class,
 				Warning_Listener::class,
-				// Request_Listener::class,
+				User_Listener::class,
 			]);
 			
 			$this->callOnEnabledEvents();
@@ -162,8 +162,7 @@ class Orion {
 	protected function callOnEnabledEvents(): void {
 		$on_enable_events = [
 			Execution_Start::class => [],
-			// User_Event::class => [],
-			// Route_Event::class => [],
+			User_Event::class => $_SERVER,
 		];
 
 		foreach ($on_enable_events as $event => $dependencies) {

@@ -5,6 +5,7 @@ namespace Orion\Listeners;
 
 use Orion\Events\Beacon;
 use Orion\Orion;
+use Orion\Utilities\Default_Keys;
 
 class Server_Stats_Listener {
 
@@ -43,8 +44,8 @@ class Server_Stats_Listener {
 		}
 
 		$Orion = Orion::getInstance();
-		$Orion->save('cpu_use', $this->getCpuUsage(), $event->Time->timestamp);
-		$Orion->save('ram_use', $this->getRamUsage(), $event->Time->timestamp);
+		$Orion->save(Default_Keys::CPU, $this->getCpuUsage(), $event->Time->timestamp);
+		$Orion->save(Default_Keys::RAM, $this->getRamUsage(), $event->Time->timestamp);
 
 		return;
 	}

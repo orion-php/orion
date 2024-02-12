@@ -6,6 +6,7 @@ namespace Orion\Listeners;
 use Orion\Orion;
 use Orion\Events\Execution_Start;
 use Orion\Events\Execution_End;
+use Orion\Utilities\Default_Keys;
 
 class Execution_Listener {
 
@@ -64,12 +65,12 @@ class Execution_Listener {
 
 		if (!empty($config['execution_slow_threshold'])) {
 			if ($execution_time > $config['execution_slow_threshold']) {
-				Orion::getInstance()->saveEvent('slow_execution', $data, $event->Time->timestamp);
+				Orion::getInstance()->saveEvent(Default_Keys::SLOW_EXECUTION, $data, $event->Time->timestamp);
 			}
 			return;
 		}
 
-		Orion::getInstance()->saveEvent('execution', $data, $event->Time->timestamp);
+		Orion::getInstance()->saveEvent(Default_Keys::EXECUTION, $data, $event->Time->timestamp);
 
 		return;
 	}

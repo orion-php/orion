@@ -10,19 +10,11 @@ use Orion\Events\Fatal_Error_Event;
 class Shutdown_Handler {
 
 	/**
-	 * Instance of Orion
-	 * 
-	 * @var Orion
-	 */
-	protected Orion $Orion;
-
-	/**
 	 * Shutdown handler
 	 * 
 	 * @return void
 	 */
 	public function registerShutdownHandler(): void {
-		// $Orion = Orion::getInstance();
 		register_shutdown_function(function() {
 			$Orion = Orion::getInstance();
 			$error = error_get_last();

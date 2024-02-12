@@ -17,8 +17,8 @@ class Error_Handler {
 	 * @return void
 	 */
 	public function registerErrorHandler(): void {
-		$Orion = Orion::getInstance();
-		set_error_handler(function($errno, $errstr, $errfile, $errline) use ($Orion) {
+		set_error_handler(function($errno, $errstr, $errfile, $errline){
+			$Orion = Orion::getInstance();
 			$error = [
 				'type' => $errno,
 				'message' => htmlspecialchars($errstr),

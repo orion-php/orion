@@ -5,6 +5,7 @@ namespace Orion\Listeners;
 
 use Orion\Orion;
 use Orion\Events\Fatal_Error_Event;
+use Orion\Utilities\Default_Keys;
 
 class Fatal_Error_Listener {
 	/**
@@ -40,6 +41,6 @@ class Fatal_Error_Listener {
 			'error_file' => $error_file,
 		];
 
-		Orion::getInstance()->saveEvent('fatal_error', $data, $event->Time->timestamp);
+		Orion::getInstance()->saveEvent(Default_Keys::FATAL_ERROR, $data, $event->Time->timestamp);
 	}
 }

@@ -8,6 +8,7 @@ use Orion\Events\Fatal_Error_Event;
 use Orion\Events\Notice_Event;
 use Orion\Events\Deprecated_Event;
 use Orion\Events\Warning_Event;
+use Orion\Utilities\Default_Keys;
 
 class Warning_Listener {
 	
@@ -52,21 +53,21 @@ class Warning_Listener {
 			case 16:
 			case 64:
 			case 256:
-				Orion::getInstance()->saveEvent('fatal_error', $data, $event->Time->timestamp);
+				Orion::getInstance()->saveEvent(Default_Keys::FATAL_ERROR, $data, $event->Time->timestamp);
 				break;
 			case 2:
 			case 32:
 			case 128:
 			case 512:
-				Orion::getInstance()->saveEvent('warning', $data, $event->Time->timestamp);
+				Orion::getInstance()->saveEvent(Default_Keys::WARNING, $data, $event->Time->timestamp);
 				break;
 			case 8:
 			case 1024:
-				Orion::getInstance()->saveEvent('notice', $data, $event->Time->timestamp);
+				Orion::getInstance()->saveEvent(Default_Keys::NOTICE, $data, $event->Time->timestamp);
 				break;
 			case 2048:
 			case 8192:
-				Orion::getInstance()->saveEvent('deprecated', $data, $event->Time->timestamp);
+				Orion::getInstance()->saveEvent(Default_Keys::DEPRECATED, $data, $event->Time->timestamp);
 				break;
 		}
 	}
