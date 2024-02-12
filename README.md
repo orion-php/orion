@@ -4,11 +4,16 @@ A PHP APM
 ## Config options
 
 ```ini
-; required
+; required, mysql only current option
+
 storage_type='mysql'
-; turns off default tracking
+
+; turns off default tracking true|false
+
 default_listeners=true
+
 ; optional, if missing executions are all logged
+
 execution_slow_threshold=3000
 
 [database]
@@ -17,7 +22,8 @@ db='your db'
 user='your user'
 pass='your pass'
 
-; wip still need to implement
+; wip still need to implement all true|false
+
 ignore_warnings=false
 ignore_notices=false
 ignore_deprecated=false
