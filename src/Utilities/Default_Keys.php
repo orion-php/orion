@@ -13,4 +13,5 @@ class Default_Keys {
 	const WARNING = 'warning';
 	const NOTICE = 'notice';
 	const DEPRECATED = 'deprecated';
+	CONST ROUTE_REQUEST = 'route_request';
 }
