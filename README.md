@@ -129,3 +129,9 @@ Orion::getInstance()->fire(new Test_Event());
 - save : Saves to orion_historical (key/value)
 - saveEvent : saves to orion_event (key/array) compressed
 - saveSeries : saves to orion_series (key/array) save series of events, compressed
+
+## CPU and RAM
+To enable CPU and RAM tracking a cron needs to run every second that fires off Beacon_Event. These get saved to `orion_historical`. The `Server_Stats_Listener` is always added as a default, but the Beacon_Event is not fired by default.
+
+## Beacon_Event
+Should be run in a cron for Listeners that depend on times or dates. 

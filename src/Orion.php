@@ -17,6 +17,7 @@ use Orion\Listeners\Fatal_Error_Listener;
 use Orion\Listeners\Warning_Listener;
 use Orion\Listeners\User_Listener;
 use Orion\Listeners\Request_Listener;
+use Orion\Listeners\Server_Stats_Listener;
 use Orion\Events\User_Event;
 use Orion\Events\Route_Event;
 use Orion\Events\Execution_Start;
@@ -131,6 +132,11 @@ class Orion {
 			
 			$this->callOnEnabledEvents();
 		}
+
+		// This is always added, but is only fired from Beacon_Event
+		$this->register([
+			Server_Stats_Listener::class,
+		]);
 
 		if (boolval($this->config['default_listeners']) === true) {
 			$this->dispatchPostEnableEvents();
