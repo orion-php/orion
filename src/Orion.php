@@ -138,10 +138,6 @@ class Orion {
 			Server_Stats_Listener::class,
 		]);
 
-		if (boolval($this->config['default_listeners']) === true) {
-			$this->dispatchPostEnableEvents();
-		}
-
 		// must be set last
 		$this->setErrorAndShutdownHandlers();
 
@@ -175,21 +171,6 @@ class Orion {
 		];
 
 		foreach ($on_enable_events as $event => $dependencies) {
-			$this->fire($this->Injector->resolve($event, [], $dependencies));
-		}
-	}
-
-	/**
-	 * Dispatch post enable events
-	 * 
-	 * @return void
-	 */	
-	protected function dispatchPostEnableEvents(): void {
-		$post_enable_events = [
-			
-		];
-
-		foreach ($post_enable_events as $event => $dependencies) {
 			$this->fire($this->Injector->resolve($event, [], $dependencies));
 		}
 	}
