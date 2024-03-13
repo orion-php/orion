@@ -6,6 +6,7 @@ namespace Orion\Storage;
 use PDO;
 use Orion\Orion;
 use Orion\Storage\Storage_Interface;
+use Orion\Exceptions\Orion_Storage_Exception;
 
 class Mysql_Storage implements Storage_Interface {
 

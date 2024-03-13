@@ -96,7 +96,7 @@ class Orion {
 	 * @param array $config
 	 */
 	private function __construct(array $config) {
-		$this->time = new Time;
+		$this->Time = new Time;
 		if (!empty($config)) {
 			foreach ($config as $key => $value) {
 				$this->config[$key] = $value;

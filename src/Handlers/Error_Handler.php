@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Orion\Handlers;
 
 use Orion\Orion;
-use Orion\Events\Fatal_Error_Event;
 use Orion\Events\Warning_Event;
 use Orion\Events\Notice_Event;
 use Orion\Events\Deprecated_Event;

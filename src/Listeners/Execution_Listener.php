@@ -53,7 +53,7 @@ class Execution_Listener {
 	 */
 	protected function endEvent(Execution_End $event): void {
 		$end_time = $event->Time->microtime;
-		$execution_time = round(($end_time - $this->start_time), 2);
+		$execution_time = round(($end_time - $this->start_time), 2) * 1000;
 		$data = [
 			'execution_time' => $execution_time,
 			'end_time' => $end_time,

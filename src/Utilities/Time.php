@@ -93,6 +93,6 @@ class Time {
 		$this->month_of_year = date('n', $this->time);
 		$this->date_time     = date('Y-m-d H:i:s', $this->time);
 		$this->timestamp     = $this->time;
-		$this->microtime     = round(microtime(true) * 1000);
+		$this->microtime     = microtime(true);
 	}
 }

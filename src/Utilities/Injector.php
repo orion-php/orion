@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Orion\Utilities;
 
 use ReflectionClass;
-use Orion\Orion;
 
 class Injector{
 	

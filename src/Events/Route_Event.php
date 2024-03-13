@@ -13,7 +13,6 @@ class Route_Event {
 
 	public function __construct(array $server) {
 		$this->Time = new Time();
-		$this->event = $event;
 		$this->url = $server['REQUEST_URI'];
 	}
 }
